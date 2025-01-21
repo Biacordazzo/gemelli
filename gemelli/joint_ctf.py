@@ -789,7 +789,7 @@ def decomposition_iter(table_mods, individual_id_lst,
     t = 0
     dif = 1
 
-    print('introduce lambda to b-hat denominator')
+    # print('introduce lambda to b-hat denominator')
     print("Introduce lambda to ksi calculation")
     while t <= maxiter and dif > epsilon:
 
@@ -821,7 +821,7 @@ def decomposition_iter(table_mods, individual_id_lst,
                 common_denom_flat = list(common_denom[modality].values())
                 common_denom_flat = np.array(common_denom_flat)
                 # introduce lambda to b-hat denominator
-                common_denom_flat = common_denom_flat * lambdas[modality]
+                # common_denom_flat = common_denom_flat * lambdas[modality]
                 b_new = np.dot(b_temp, a_hat) / np.dot(common_denom_flat,
                                                        a_hat ** 2)
                 b_hat = b_new / np.sqrt(np.sum(b_new ** 2))
