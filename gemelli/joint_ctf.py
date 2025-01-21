@@ -790,7 +790,7 @@ def decomposition_iter(table_mods, individual_id_lst,
     dif = 1
 
     print('introduce lambda to b-hat denominator')
-    # print("Introduce lambda to ksi calculation")
+    print("Introduce lambda to ksi calculation")
     while t <= maxiter and dif > epsilon:
 
         # variables to save intermediate outputs
@@ -829,13 +829,13 @@ def decomposition_iter(table_mods, individual_id_lst,
                 b_hats[modality] = b_hat
 
             # calculate state loadings
-            # if t == 0:
-            Ly = [a_hat[i] * b_hat.dot(m) for i, m in
-                  enumerate(table_mod.values())]
+            if t == 0:
+                Ly = [a_hat[i] * b_hat.dot(m) for i, m in
+                    enumerate(table_mod.values())]
             # introduce lambdas to ksi-hat calculation
-            # if t > 0:
-            #     Ly = [lambdas[modality] * a_hat[i] * b_hat.dot(m) for i, m in
-            #         enumerate(table_mod.values())]
+            if t > 0:
+                Ly = [lambdas[modality] * a_hat[i] * b_hat.dot(m) for i, m in
+                    enumerate(table_mod.values())]
             phi_hat = freg_rkhs(Ly, a_hat, ind_vec, Kmat, Kmat_output,
                                 smooth=smooth)
             phi_hat = (phi_hat / np.sqrt(np.sum(phi_hat ** 2)))
