@@ -23,7 +23,7 @@ from gemelli.joint_ctf import format_time
 
 
 class TestJointCTF(unittest.TestCase):
-    
+
     def setUp(self):
         pass
 
@@ -56,7 +56,7 @@ class TestJointCTF(unittest.TestCase):
         """
         test format_time function
         """
-        
+    
         individual_id_tables = {
             "ind_1": pd.DataFrame(data={
                 "sample_1": [1, 0, 2],
@@ -68,12 +68,12 @@ class TestJointCTF(unittest.TestCase):
             "ind_2": pd.DataFrame(data={
                 "sample_1": [4, 1, 0],
                 "sample_2": [2, 3, 1],
-                "sample_4": [2, 3, 1]},
+                "sample_3": [2, 3, 1]},
                 index=["feature_1", "feature_2", "feature_3"])}
-        
+    
         individual_id_state_orders = {"ind_1": [1, 2, 3, 4, 5],
                                       "ind_2": [1, 2, 3]}
-        
+    
         # normalized_num = [0, 1, 2, 3, 4]
         # normalized_den = 4
         # normalized_t = [0.0, 0.25, 0.5, 0.75, 1.0]
@@ -84,18 +84,50 @@ class TestJointCTF(unittest.TestCase):
         tables_update = copy.deepcopy(individual_id_tables)
 
         norm_interval = (0, 1)
-        ind_vec = [0,0,0,0,0,1,1,1]
-        Lt = [[0.0, 24.75, 49.5, 74.25, 99.0, 0.0, 24.75, 49.5]]
+        ind_vec = [0, 0, 0, 0, 0, 1, 1, 1]
+        Lt = [0.0, 0.25, 0.5, 0.75, 1.0, 0.0, 0.25, 0.5]
+        # ti_ = [[0.0, 24.75, 49.5, 74.25, 99.0], [0.0, 24.75, 49.5]]
         ti = [np.array([0, 24, 49, 74, 99]), np.array([0, 24, 49])]
 
-        func_output = format_time(individual_id_tables, 
-                                  individual_id_state_orders, 
+        func_output = format_time(individual_id_tables,
+                                  individual_id_state_orders,
                                   n_individuals=2, resolution=100,
-                                  input_time_range=(0,5),
+                                  input_time_range=(1, 5),
                                   interval=None)
+        
+        self.assertEqual(func_output,
+                         (norm_interval, tables_update, ti, ind_vec, Lt))
 
-        self.assertEqual(func_output, 
-                        (norm_interval, tables_update, ti, ind_vec, Lt))
+        # now, test with interval
+        func_output_2 = format_time(individual_id_tables, 
+                                    individual_id_state_orders, 
+                                    n_individuals=2, resolution=100,
+                                    input_time_range=(1,3),
+                                    interval=None)
+
+        # normalized_num = [0, 1, 2, 3, 4]
+        # normalized_den = 2
+        # normalized_t = [0.0, 0.5, 1, 1.5, 2]
+
+        norm_interval_2 = (0, 1)
+        ind_vec_2 = [0, 0, 0, 0, 0, 1, 1, 1]
+        Lt_2 = [0.0, 0.5, 1, 1.5, 2, 0.0, 0.5, 1]
+        ti_2 = [np.array([0, 49.5, 99]), np.array([0, 49.5, 99])]
+
+        tables_update_2 = {
+            "ind_1": pd.DataFrame(data={
+                "sample_1": [1, 0, 2],
+                "sample_2": [0, 1, 3],
+                "sample_3": [1, 0, 2]},
+                index=["feature_1", "feature_2", "feature_3"]),
+            "ind_2": pd.DataFrame(data={
+                "sample_1": [4, 1, 0],
+                "sample_2": [2, 3, 1],
+                "sample_3": [2, 3, 1]},
+                index=["feature_1", "feature_2", "feature_3"])}
+
+        self.assertEqual(func_output_2, (norm_interval_2, tables_update_2,
+                                         ti_2, ind_vec_2, Lt_2))
 
     def test_formatting_iter(self):
         pass
