@@ -15,11 +15,12 @@ import copy
 #                                update_a_mod, initialize_tabular,
 #                                decomposition_iter, format_time,
 #                                formatting_iter, joint_ctf_helper, joint_ctf)
-from gemelli.joint_ctf import format_time
+from gemelli.joint_ctf import format_time, update_tabular
 # from gemelli.joint_ctf.concat_tensors import concat
 # from gemelli.rpca import rpca_table_processing
 # from gemelli.preprocessing import build_sparse
 # from numpy.testing import assert_allclose
+from pandas.testing import assert_frame_equal
 
 
 class TestJointCTF(unittest.TestCase):
@@ -92,13 +93,11 @@ class TestJointCTF(unittest.TestCase):
                                   interval=(1, 5))
 
         self.assertEqual(func_output[0], norm_interval)
-        self.assertEqual(func_output[1]['ind_1'].equals(
-            tables_update['ind_1']))
-        self.assertEqual(func_output[1]['ind_2'].equals(
-            tables_update['ind_2']))
+        assert_frame_equal(func_output[1]['ind_1'], tables_update['ind_1'])
+        assert_frame_equal(func_output[1]['ind_2'], tables_update['ind_2'])
         self.assertEqual(func_output[2][0], ti[0])
-        self.assertEqual(np.array_equal(func_output[3], ind_vec))
-        self.assertEqual(np.array_equal(func_output[4], Lt))
+        self.assertEqual(True, np.array_equal(func_output[3], ind_vec))
+        self.assertEqual(True, np.array_equal(func_output[4], Lt))
 
         # now, test with interval
         func_output_2 = format_time(individual_id_tables,
@@ -111,12 +110,12 @@ class TestJointCTF(unittest.TestCase):
         # normalized_den = 2
         # normalized_t = [0.0, 0.5, 1, 1.5, 2]
 
-        norm_interval_2 = (0, 1)
-        ind_vec_2 = [0, 0, 0, 0, 0, 1, 1, 1]
-        Lt_2 = [0.0, 0.5, 1, 1.5, 2, 0.0, 0.5, 1]
-        ti_2 = [np.array([0, 49.5, 99]), np.array([0, 49.5, 99])]
+        norm_interval2 = (0, 1)
+        ind_vec2 = [0, 0, 0, 0, 0, 1, 1, 1]
+        Lt2 = [0.0, 0.5, 1, 1.5, 2, 0.0, 0.5, 1]
+        ti2 = [np.array([0, 49, 99]), np.array([0, 49, 99])]
 
-        tables_update_2 = {
+        tables_update2 = {
             "ind_1": pd.DataFrame(data={
                 "sample_1": [1, 0, 2],
                 "sample_2": [0, 1, 3],
@@ -128,17 +127,48 @@ class TestJointCTF(unittest.TestCase):
                 "sample_3": [2, 3, 1]},
                 index=["feature_1", "feature_2", "feature_3"])}
 
-        self.assertEqual(func_output_2[0], norm_interval_2)
-        self.assertEqual(func_output_2[1]['ind_1'].equals(
-            tables_update_2['ind_1']))
-        self.assertEqual(func_output_2[1]['ind_2'].equals(
-            tables_update_2['ind_2']))
-        self.assertEqual(func_output_2[2][0], ti_2[0])
-        self.assertEqual(np.array_equal(func_output_2[3], ind_vec_2))
-        self.assertEqual(np.array_equal(func_output_2[4], Lt_2))
+        self.assertEqual(func_output_2[0], norm_interval2)
+        assert_frame_equal(func_output_2[1]['ind_1'], tables_update2['ind_1'])
+        assert_frame_equal(func_output_2[1]['ind_2'], tables_update2['ind_2'])
+        self.assertEqual(func_output_2[2][0], ti2[0])
+        self.assertEqual(True, np.array_equal(func_output_2[3], ind_vec2))
+        self.assertEqual(True, np.array_equal(func_output_2[4], Lt2))
 
-    def test_formatting_iter(self):
-        pass
+    def test_update_tabular(self):
+  
+        mod1 = {
+            "ind_1": pd.DataFrame(data={
+                "sample_1": [1, 0, 2],
+                "sample_2": [0, 1, 3],
+                "sample_3": [1, 0, 2]},
+                index=["feature_1", "feature_2", "feature_3"]),
+            "ind_2": pd.DataFrame(data={
+                "sample_1": [4, 1, 0],
+                "sample_2": [2, 3, 1],
+                "sample_3": [2, 3, 1]},
+                index=["feature_1", "feature_2", "feature_3"])}
+
+        phi_hat = np.array([1, 0, 1])
+        beta_hat = np.array([0, 1, 0])
+        lambda_ = 10
+        ti = [np.array([0, 1, 2]), np.array([0, 1, 2])]
+
+        a_num = {"ind_1": 30, "ind_2": 60}
+        a_denom = {"ind_1": 200, "ind_2": 200}
+        b_num = np.array([[3, 3, 3], [4, 3, 3]])
+        common_denom = {"ind_1": 2, "ind_2": 2} 
+
+        joint_ctf_res = update_tabular(mod1, n_individuals=2, n_features=3,
+                                       b_mod=beta_hat, phi_mod=phi_hat,
+                                       lambda_mod=lambda_, ti=ti)
+
+        self.assertEqual(joint_ctf_res[0]["ind_1"], a_num["ind_1"])
+        self.assertEqual(joint_ctf_res[0]["ind_2"], a_num["ind_2"])
+        self.assertEqual(joint_ctf_res[1]["ind_1"], a_denom["ind_1"])
+        self.assertEqual(joint_ctf_res[1]["ind_2"], a_denom["ind_2"])
+        self.assertEqual(True, np.array_equal(joint_ctf_res[2], b_num))
+        self.assertEqual(joint_ctf_res[3]["ind_1"], common_denom["ind_1"])
+        self.assertEqual(joint_ctf_res[3]["ind_2"], common_denom["ind_2"])
 
     def test_decomposition_iter(self):
         pass
