@@ -92,7 +92,6 @@ class TestJointCTF(unittest.TestCase):
                                   interval=(1, 5))
 
         self.assertEqual(func_output[0], norm_interval)
-        self.assertEqual(func_output[1], tables_update)
         self.assertEqual(func_output[1]['ind_1'].equals(
             tables_update['ind_1']))
         self.assertEqual(func_output[1]['ind_2'].equals(
@@ -130,7 +129,6 @@ class TestJointCTF(unittest.TestCase):
                 index=["feature_1", "feature_2", "feature_3"])}
 
         self.assertEqual(func_output_2[0], norm_interval_2)
-        self.assertEqual(func_output_2[1], tables_update_2)
         self.assertEqual(func_output_2[1]['ind_1'].equals(
             tables_update_2['ind_1']))
         self.assertEqual(func_output_2[1]['ind_2'].equals(
