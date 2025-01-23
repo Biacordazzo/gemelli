@@ -960,6 +960,7 @@ def format_time(individual_id_tables,
         ind_vec.extend([i] * len(Lt[-1]))
         # define time points within interval
         mask = [(t >= interval[0]) & (t <= interval[1]) for t in time_range_i]
+        time_range_i = np.array(time_range_i)
         temp = time_range_i[mask]
         temp = [(resolution-1)*(tp - interval[0])/(interval[1] - interval[0])
                 for tp in temp]
