@@ -935,15 +935,18 @@ def format_time(individual_id_tables,
     tables_update = copy.deepcopy(individual_id_tables)
     orders_update = copy.deepcopy(individual_id_state_orders)
 
+    # normalize interval
+    interval_num = (interval[0] - input_time_range[0],
+                    interval[1] - input_time_range[0])
+    interval_den = input_time_range[1] - input_time_range[0]
+    interval = (interval_num[0] / interval_den,
+                interval_num[1] / interval_den)
+
     # normalize time points
     for individual_id in orders_update.keys():
-        update_num = (orders_update[individual_id] - input_time_range[0])
-        update_den = (input_time_range[1] - input_time_range[0])
-        orders_update[individual_id] = update_num / update_den
-    # ensure interval is in the same format
-    interval_num = (interval - input_time_range[0])
-    interval_den = (input_time_range[1] - input_time_range[0])
-    interval = tuple(interval_num / interval_den)
+        update_num = [t - input_time_range[0] for t in
+                      orders_update[individual_id]]
+        orders_update[individual_id] = [t / interval_den for t in update_num]
 
     # initialize variables to store time points (tps)
     Lt = []  # all normalized tps
