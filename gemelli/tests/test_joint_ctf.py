@@ -1,24 +1,12 @@
 import unittest
-# import os
-# import inspect
 import pandas as pd
 import numpy as np
 import copy
 # from skbio import OrdinationResults
 # from pandas import read_csv
 # from biom import load_table
-# from skbio.util import get_data_path
 # from gemelli.testing import assert_ordinationresults_equal
-# from gemelli.joint_ctf import (update_residuals, get_prop_var, lambda_sort,
-#                                reformat_loadings, summation_check,
-#                                feature_covariance, update_lambda,
-#                                update_a_mod, initialize_tabular,
-#                                decomposition_iter, format_time,
-#                                formatting_iter, joint_ctf_helper, joint_ctf)
 from gemelli.joint_ctf import format_time, update_tabular
-# from gemelli.joint_ctf.concat_tensors import concat
-# from gemelli.rpca import rpca_table_processing
-# from gemelli.preprocessing import build_sparse
 # from numpy.testing import assert_allclose
 from pandas.testing import assert_frame_equal
 
@@ -95,7 +83,7 @@ class TestJointCTF(unittest.TestCase):
         self.assertEqual(func_output[0], norm_interval)
         assert_frame_equal(func_output[1]['ind_1'], tables_update['ind_1'])
         assert_frame_equal(func_output[1]['ind_2'], tables_update['ind_2'])
-        self.assertEqual(func_output[2][0], ti[0])
+        self.assertEqual(True, np.array_equal(func_output[2][0], ti[0]))
         self.assertEqual(True, np.array_equal(func_output[3], ind_vec))
         self.assertEqual(True, np.array_equal(func_output[4], Lt))
 
@@ -130,22 +118,25 @@ class TestJointCTF(unittest.TestCase):
         self.assertEqual(func_output_2[0], norm_interval2)
         assert_frame_equal(func_output_2[1]['ind_1'], tables_update2['ind_1'])
         assert_frame_equal(func_output_2[1]['ind_2'], tables_update2['ind_2'])
-        self.assertEqual(func_output_2[2][0], ti2[0])
+        self.assertEqual(True, np.array_equal(func_output_2[2][0], ti2[0]))
         self.assertEqual(True, np.array_equal(func_output_2[3], ind_vec2))
         self.assertEqual(True, np.array_equal(func_output_2[4], Lt2))
 
     def test_update_tabular(self):
-  
+        """
+        Test Joint-CTF's update_tabular function
+        """
+
         mod1 = {
             "ind_1": pd.DataFrame(data={
-                "sample_1": [1, 0, 2],
-                "sample_2": [0, 1, 3],
-                "sample_3": [1, 0, 2]},
+                "sample_1": [1, 0, 1],
+                "sample_2": [0, 1, 0],
+                "sample_3": [2, 3, 2]},
                 index=["feature_1", "feature_2", "feature_3"]),
             "ind_2": pd.DataFrame(data={
-                "sample_1": [4, 1, 0],
-                "sample_2": [2, 3, 1],
-                "sample_3": [2, 3, 1]},
+                "sample_1": [4, 2, 2],
+                "sample_2": [1, 3, 3],
+                "sample_3": [0, 1, 1]},
                 index=["feature_1", "feature_2", "feature_3"])}
 
         phi_hat = np.array([1, 0, 1])
@@ -170,5 +161,8 @@ class TestJointCTF(unittest.TestCase):
         self.assertEqual(joint_ctf_res[3]["ind_1"], common_denom["ind_1"])
         self.assertEqual(joint_ctf_res[3]["ind_2"], common_denom["ind_2"])
 
-    def test_decomposition_iter(self):
+    def test_update_lambda(self):
+        """
+        Test Joint-CTF's update_lambda function
+        """
         pass
