@@ -111,7 +111,7 @@ class TestJointCTF(unittest.TestCase):
                 index=["feature_1", "feature_2", "feature_3"]),
             "ind_2": pd.DataFrame(data={
                 "sample_1": [4, 1, 0],
-                "sample_2": [3, 3, 1],
+                "sample_2": [2, 3, 1],
                 "sample_3": [2, 3, 1]},
                 index=["feature_1", "feature_2", "feature_3"])}
 
@@ -134,7 +134,7 @@ class TestJointCTF(unittest.TestCase):
                 "sample_3": [2, 3, 2]},
                 index=["feature_1", "feature_2", "feature_3"]),
             "ind_2": pd.DataFrame(data={
-                "sample_1": [4, 2, 2],
+                "sample_1": [4, 3, 2],
                 "sample_2": [1, 3, 3],
                 "sample_3": [0, 1, 1]},
                 index=["feature_1", "feature_2", "feature_3"])}
@@ -179,11 +179,10 @@ class TestJointCTF(unittest.TestCase):
                 index=["feature_1", "feature_2", "feature_3"])}
         phi_hat = np.array([1, 0, 1])
         beta_hat = np.array([0, 1, 0])
-        alpha_hat = {"ind_1": 30, "ind_2": 60}
+        alpha_hat = np.array([30, 60])
         ti = [np.array([0, 1, 2]), np.array([0, 1, 2])]
 
-        lambda_new = update_lambda(mod1, ti=ti, a_hat=alpha_hat, 
-                                      phi_hat=phi_hat, b_hat=beta_hat)
+        lambda_new = update_lambda(mod1, ti=ti, a_hat=alpha_hat,
+                                   phi_hat=phi_hat, b_hat=beta_hat)
 
         assert_array_almost_equal(lambda_new, 0.02333, decimal=5)
-
