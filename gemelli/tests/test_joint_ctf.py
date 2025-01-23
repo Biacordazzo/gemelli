@@ -56,7 +56,7 @@ class TestJointCTF(unittest.TestCase):
         """
         test format_time function
         """
-    
+
         individual_id_tables = {
             "ind_1": pd.DataFrame(data={
                 "sample_1": [1, 0, 2],
@@ -70,16 +70,13 @@ class TestJointCTF(unittest.TestCase):
                 "sample_2": [2, 3, 1],
                 "sample_3": [2, 3, 1]},
                 index=["feature_1", "feature_2", "feature_3"])}
-    
+
         individual_id_state_orders = {"ind_1": [1, 2, 3, 4, 5],
                                       "ind_2": [1, 2, 3]}
-    
+
         # normalized_num = [0, 1, 2, 3, 4]
         # normalized_den = 4
         # normalized_t = [0.0, 0.25, 0.5, 0.75, 1.0]
-        # resolution = 100
-        # input_time_range = (1, 5)
-        # interval = (1, 5)
 
         tables_update = copy.deepcopy(individual_id_tables)
 
@@ -93,17 +90,17 @@ class TestJointCTF(unittest.TestCase):
                                   individual_id_state_orders,
                                   n_individuals=2, resolution=100,
                                   input_time_range=(1, 5),
-                                  interval=None)
-        
+                                  interval=(1, 5))
+ 
         self.assertEqual(func_output,
                          (norm_interval, tables_update, ti, ind_vec, Lt))
 
         # now, test with interval
-        func_output_2 = format_time(individual_id_tables, 
-                                    individual_id_state_orders, 
+        func_output_2 = format_time(individual_id_tables,
+                                    individual_id_state_orders,
                                     n_individuals=2, resolution=100,
-                                    input_time_range=(1,3),
-                                    interval=None)
+                                    input_time_range=(1, 3),
+                                    interval=(1, 3))
 
         # normalized_num = [0, 1, 2, 3, 4]
         # normalized_den = 2
