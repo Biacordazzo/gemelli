@@ -91,7 +91,7 @@ class TestJointCTF(unittest.TestCase):
                                   n_individuals=2, resolution=100,
                                   input_time_range=(1, 5),
                                   interval=(1, 5))
- 
+
         self.assertEqual(func_output,
                          (norm_interval, tables_update, ti, ind_vec, Lt))
 
