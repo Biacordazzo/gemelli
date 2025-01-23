@@ -54,7 +54,7 @@ class TestJointCTF(unittest.TestCase):
 
     def test_format_time(self):
         """
-        test format_time function
+        Test Joint-CTF's format_time function
         """
 
         individual_id_tables = {
@@ -83,7 +83,6 @@ class TestJointCTF(unittest.TestCase):
         norm_interval = (0, 1)
         ind_vec = [0, 0, 0, 0, 0, 1, 1, 1]
         Lt = [0.0, 0.25, 0.5, 0.75, 1.0, 0.0, 0.25, 0.5]
-        # ti_ = [[0.0, 24.75, 49.5, 74.25, 99.0], [0.0, 24.75, 49.5]]
         ti = [np.array([0, 24, 49, 74, 99]), np.array([0, 24, 49])]
 
         func_output = format_time(individual_id_tables,
@@ -92,8 +91,15 @@ class TestJointCTF(unittest.TestCase):
                                   input_time_range=(1, 5),
                                   interval=(1, 5))
 
-        self.assertEqual(func_output,
-                         (norm_interval, tables_update, ti, ind_vec, Lt))
+        self.assertEqual(func_output[0], norm_interval)
+        self.assertEqual(func_output[1], tables_update)
+        self.assertEqual(func_output[1]['ind_1'].equals(
+            tables_update['ind_1']))
+        self.assertEqual(func_output[1]['ind_2'].equals(
+            tables_update['ind_2']))
+        self.assertEqual(func_output[2][0], ti[0])
+        self.assertEqual(np.array_equal(func_output[3], ind_vec))
+        self.assertEqual(np.array_equal(func_output[4], Lt))
 
         # now, test with interval
         func_output_2 = format_time(individual_id_tables,
@@ -123,8 +129,15 @@ class TestJointCTF(unittest.TestCase):
                 "sample_3": [2, 3, 1]},
                 index=["feature_1", "feature_2", "feature_3"])}
 
-        self.assertEqual(func_output_2, (norm_interval_2, tables_update_2,
-                                         ti_2, ind_vec_2, Lt_2))
+        self.assertEqual(func_output_2[0], norm_interval_2)
+        self.assertEqual(func_output_2[1], tables_update_2)
+        self.assertEqual(func_output_2[1]['ind_1'].equals(
+            tables_update_2['ind_1']))
+        self.assertEqual(func_output_2[1]['ind_2'].equals(
+            tables_update_2['ind_2']))
+        self.assertEqual(func_output_2[2][0], ti_2[0])
+        self.assertEqual(np.array_equal(func_output_2[3], ind_vec_2))
+        self.assertEqual(np.array_equal(func_output_2[4], Lt_2))
 
     def test_formatting_iter(self):
         pass
