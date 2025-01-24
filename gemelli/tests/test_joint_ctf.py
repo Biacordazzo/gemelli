@@ -199,13 +199,13 @@ class TestJointCTF(unittest.TestCase):
                 "ind_1": pd.DataFrame(data={"sample_1": [4, 10],
                                             "sample_2": [5, 8],
                                             "sample_3": [4, 5]},
-                                            index=feat_index)
+                                      index=feat_index)
             },
             "mod2": {
                 "ind_1": pd.DataFrame(data={"sample_1": [30, 20],
                                             "sample_2": [25, 15],
                                             "sample_3": [15, 10]},
-                                            index=feat_index)
+                                      index=feat_index)
             }
         }
 
@@ -232,17 +232,17 @@ class TestJointCTF(unittest.TestCase):
                 "ind_1": pd.DataFrame(data={"sample_1": [2, 6],
                                             "sample_2": [1, 0],
                                             "sample_3": [2, 1]},
-                                            index=feat_index)
+                                      index=feat_index)
             },
             "mod2": {
                 "ind_1": pd.DataFrame(data={"sample_1": [6, 4],
                                             "sample_2": [13, 7],
                                             "sample_3": [3, 2]},
-                                            index=feat_index)
+                                      index=feat_index)
             }
         }
 
-        assert_frame_equal(updated_tables['mod1']['ind1'],
-                           exp_updates['mod1']['ind1'])
-        assert_frame_equal(updated_tables['mod2']['ind1'],
-                           exp_updates['mod2']['ind1'])
+        assert_frame_equal(updated_tables['mod1']['ind_1'],
+                           exp_updates['mod1']['ind_1'])
+        assert_frame_equal(updated_tables['mod2']['ind_1'],
+                           exp_updates['mod2']['ind_1'])
