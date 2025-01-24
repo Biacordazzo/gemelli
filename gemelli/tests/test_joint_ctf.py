@@ -6,7 +6,8 @@ import copy
 # from pandas import read_csv
 # from biom import load_table
 # from gemelli.testing import assert_ordinationresults_equal
-from gemelli.joint_ctf import (format_time, update_tabular, update_lambda)
+from gemelli.joint_ctf import (format_time, update_tabular, update_lambda,
+                               update_residuals)
 # from numpy.testing import assert_array_almost_equal
 from pandas.testing import assert_frame_equal
 
@@ -65,7 +66,6 @@ class TestJointCTF(unittest.TestCase):
 
         # normalized_num = [0, 1, 2, 3, 4]
         # normalized_den = 4
-        # normalized_t = [0.0, 0.25, 0.5, 0.75, 1.0]
 
         tables_update = copy.deepcopy(individual_id_tables)
 
@@ -96,7 +96,6 @@ class TestJointCTF(unittest.TestCase):
 
         # normalized_num = [0, 1, 2, 3, 4]
         # normalized_den = 2
-        # normalized_t = [0.0, 0.5, 1, 1.5, 2]
 
         norm_interval2 = (0, 1)
         ind_vec2 = [0, 0, 0, 0, 0, 1, 1, 1]
@@ -188,3 +187,62 @@ class TestJointCTF(unittest.TestCase):
                                    phi_hat=phi_hat, b_hat=beta_hat)
 
         self.assertEqual(lambda_new, 0.03)
+
+    def test_update_residuals(self):
+        """
+        Test Joint-CTF's update_residuals function
+        """
+
+        feat_index = ["feature_1", "feature_2"]
+        tables = {
+            "mod1": {
+                "ind_1": pd.DataFrame(data={"sample_1": [4, 10],
+                                            "sample_2": [5, 8],
+                                            "sample_3": [4, 5]},
+                                            index=feat_index)
+            },
+            "mod2": {
+                "ind_1": pd.DataFrame(data={"sample_1": [30, 20],
+                                            "sample_2": [25, 15],
+                                            "sample_3": [15, 10]},
+                                            index=feat_index)
+            }
+        }
+
+        beta_hats = {"mod1": np.array([1, 2]),
+                     "mod2": np.array([3, 2])}
+        phi_hats = {"mod1": np.array([1, 2, 1]),
+                    "mod2": np.array([2, 1, 1])}
+        lambdas = {"mod1": 2, "mod2": 4}
+        alpha_hat = np.array([1])  # only one individual in each mod
+        ti = {"mod1": [np.array([0, 1, 2]),
+                       np.array(["ind_1", "ind_1", "ind_1"])],
+              "mod2": [np.array([0, 1, 2]),
+                       np.array(["ind_1", "ind_1", "ind_1"])]}
+
+        updated_tables, _ = update_residuals(tables,
+                                             a_hat=alpha_hat,
+                                             b_hats=beta_hats,
+                                             phi_hats=phi_hats,
+                                             times=ti,
+                                             lambdas=lambdas)
+
+        exp_updates = {
+            "mod1": {
+                "ind_1": pd.DataFrame(data={"sample_1": [2, 6],
+                                            "sample_2": [1, 0],
+                                            "sample_3": [2, 1]},
+                                            index=feat_index)
+            },
+            "mod2": {
+                "ind_1": pd.DataFrame(data={"sample_1": [6, 4],
+                                            "sample_2": [13, 7],
+                                            "sample_3": [3, 2]},
+                                            index=feat_index)
+            }
+        }
+
+        assert_frame_equal(updated_tables['mod1']['ind1'],
+                           exp_updates['mod1']['ind1'])
+        assert_frame_equal(updated_tables['mod2']['ind1'],
+                           exp_updates['mod2']['ind1'])
