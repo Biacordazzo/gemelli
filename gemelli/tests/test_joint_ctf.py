@@ -215,17 +215,17 @@ class TestJointCTF(unittest.TestCase):
                     "mod2": np.array([2, 1, 1])}
         lambdas = {"mod1": 2, "mod2": 4}
         alpha_hat = np.array([1])  # only one individual in each mod
-        ti = {"mod1": [[np.array([0, 1, 2])], 
+        ti = {"mod1": [[np.array([0, 1, 2])],
                        [np.array(["ind_1", "ind_1", "ind_1"])]],
               "mod2": [[np.array([0, 1, 2])],
                        [np.array(["ind_1", "ind_1", "ind_1"])]]}
 
-        updated_tables, _ = update_residuals(tables,
-                                             a_hat=alpha_hat,
-                                             b_hats=beta_hats,
-                                             phi_hats=phi_hats,
-                                             times=ti,
-                                             lambdas=lambdas)
+        updated_tables, rsquared = update_residuals(tables,
+                                                    a_hat=alpha_hat,
+                                                    b_hats=beta_hats,
+                                                    phi_hats=phi_hats,
+                                                    times=ti,
+                                                    lambdas=lambdas)
 
         exp_updates = {
             "mod1": {
@@ -246,3 +246,12 @@ class TestJointCTF(unittest.TestCase):
                            exp_updates['mod1']['ind_1'])
         assert_frame_equal(updated_tables['mod2']['ind_1'],
                            exp_updates['mod2']['ind_1'])
+        
+        # now test r-squared
+        y_mod1 = np.array([4, 10, 5, 8, 4, 5])
+        rs_mod1 = 1 - (46 / (6 * y_mod1.var()))
+        y_mod2 = np.array([30, 20, 25, 15, 15, 10])
+        rs_mod2 = 1 - (283 / (6 * y_mod2.var()))
+
+        self.assertEqual(rsquared['mod1'], rs_mod1)
+        self.assertEqual(rsquared['mod2'], rs_mod2)
