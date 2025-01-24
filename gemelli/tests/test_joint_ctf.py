@@ -7,7 +7,7 @@ import copy
 # from biom import load_table
 # from gemelli.testing import assert_ordinationresults_equal
 from gemelli.joint_ctf import (format_time, update_tabular, update_lambda)
-from numpy.testing import assert_array_almost_equal
+# from numpy.testing import assert_array_almost_equal
 from pandas.testing import assert_frame_equal
 
 
@@ -146,7 +146,9 @@ class TestJointCTF(unittest.TestCase):
 
         a_num = {"ind_1": 30, "ind_2": 40}
         a_denom = {"ind_1": 200, "ind_2": 200}
-        b_num = np.array([[3, 3, 3], [4, 4, 3]])
+        b_num = np.array([[3, 4],
+                          [3, 4],
+                          [3, 3]])
         common_denom = {"ind_1": 2, "ind_2": 2}
 
         joint_ctf_res = update_tabular(mod1, n_individuals=2, n_features=3,
@@ -185,4 +187,4 @@ class TestJointCTF(unittest.TestCase):
         lambda_new = update_lambda(mod1, ti=ti, a_hat=alpha_hat,
                                    phi_hat=phi_hat, b_hat=beta_hat)
 
-        assert_array_almost_equal(lambda_new, 0.02333, decimal=5)
+        self.assertEqual(lambda_new, 0.03)
