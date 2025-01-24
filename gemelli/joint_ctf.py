@@ -142,7 +142,7 @@ def update_residuals(table_mods, a_hat, b_hats,
 
         for i, (individual_id, m) in enumerate(table_mod.items()):
             y.append(np.concatenate(m.T.values))
-            phi_ = phi_hat[ti[i]]
+            phi_ = phi_hat[ti]
             new_m = np.outer(b_hat, phi_.T)
             new_m = a_hat[i] * new_m
             table_mod[individual_id] -= (lambda_coeff * new_m)
@@ -569,7 +569,7 @@ def update_lambda(individual_id_tables, ti,
 
     for i, m in enumerate(individual_id_tables.values()):
 
-        phi_ = phi_hat[ti[i]]
+        phi_ = phi_hat[ti]
         num = a_hat[i]*(b_hat.dot(m.values).dot(phi_))
         nums.append(num)
         denom = (a_hat[i]*phi_) ** 2
@@ -648,7 +648,7 @@ def update_tabular(individual_id_tables,
     for i, (individual_id, m) in enumerate(individual_id_tables.items()):
 
         # keep timepoints within interval
-        phi_ = phi_mod[ti[i]]
+        phi_ = phi_mod[ti]
         # save item needed for both a_hat and b_hat
         common_denom[individual_id] = np.sum(phi_ ** 2)
         # save item needed later for b_hat
