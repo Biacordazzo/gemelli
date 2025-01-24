@@ -142,7 +142,7 @@ def update_residuals(table_mods, a_hat, b_hats,
 
         for i, (individual_id, m) in enumerate(table_mod.items()):
             y.append(np.concatenate(m.T.values))
-            phi_ = phi_hat[ti]
+            phi_ = phi_hat[ti[i]]
             new_m = np.outer(b_hat, phi_.T)
             new_m = a_hat[i] * new_m
             table_mod[individual_id] -= (lambda_coeff * new_m)
@@ -789,7 +789,7 @@ def decomposition_iter(table_mods, individual_id_lst,
     t = 0
     dif = 1
 
-    print('introduce lambda to b-hat denominator')
+    # print('introduce lambda to b-hat denominator')
     # print("Introduce lambda to ksi calculation")
     while t <= maxiter and dif > epsilon:
 

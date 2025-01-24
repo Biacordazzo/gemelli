@@ -215,10 +215,10 @@ class TestJointCTF(unittest.TestCase):
                     "mod2": np.array([2, 1, 1])}
         lambdas = {"mod1": 2, "mod2": 4}
         alpha_hat = np.array([1])  # only one individual in each mod
-        ti = {"mod1": [np.array([0, 1, 2]),
-                       np.array(["ind_1", "ind_1", "ind_1"])],
-              "mod2": [np.array([0, 1, 2]),
-                       np.array(["ind_1", "ind_1", "ind_1"])]}
+        ti = {"mod1": [[np.array([0, 1, 2])], 
+                       [np.array(["ind_1", "ind_1", "ind_1"])]],
+              "mod2": [[np.array([0, 1, 2])],
+                       [np.array(["ind_1", "ind_1", "ind_1"])]]}
 
         updated_tables, _ = update_residuals(tables,
                                              a_hat=alpha_hat,
