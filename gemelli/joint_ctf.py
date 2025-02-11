@@ -15,8 +15,8 @@ from gemelli._defaults import (DEFAULT_COMP,
                                # DEFAULT_TEMPTED_RHC as DEFAULT_RC,
                                DEFAULT_TEMPTED_SVDC,
                                DEFAULT_TEMPTED_SVDCN as DEFAULT_TSCN)
-from gemelli.tempted import (freg_rkhs, bernoulli_kernel)
-
+# from gemelli.tempted import (freg_rkhs, bernoulli_kernel)
+from gemelli.tempted import bernoulli_kernel
 
 class concat_tensors():
     '''
@@ -704,6 +704,64 @@ def initialize_tabular(individual_id_tables,
 
     return b_hat, a_hat
 
+def freg_rkhs(Ly, a_hat, ind_vec, Kmat,
+              Kmat_output, lambda_, smooth=1e-6):
+
+    """
+    A helper function for tempted
+    to update phi (state loadings).
+
+    Parameters
+    ----------
+    Ly: list of numpy.ndarray
+        list of length equal to
+        the number of individuals.
+        Each item is an array of
+        size equal to the number
+        of states for that individual.
+
+    a_hat: numpy.ndarray
+        The rank-one individual loadings.
+        rows = individual
+        columns = None
+
+    ind_vec: numpy.ndarray
+        Indexing of the samples
+        associated with an individual.
+        rows = N samples
+        columns = None
+
+    Kmat: numpy.ndarray
+        The kernel matrix.
+        rows = samples
+        columns = samples
+
+    Kmat_output: numpy.ndarray
+        The bernoulli kernel matrix.
+        rows = states (resolution)
+        columns = samples
+
+    smooth: float
+        1e-6
+
+    Returns
+    -------
+    numpy.ndarray
+        Updated rank-1 phi
+        rows = states (resolution)
+        columns = None
+
+    """
+
+    A = Kmat.copy()
+    for i in range(len(Ly)):
+        scale = lambda_ * a_hat[i]
+        A[ind_vec == i, :] *= (scale ** 2)
+    cvec = np.hstack(Ly)
+    A_temp = A + smooth * np.eye(A.shape[1])
+    beta = np.linalg.inv(A_temp) @ cvec
+    phi_est = Kmat_output.dot(beta)
+    return phi_est
 
 def decomposition_iter(table_mods, individual_id_lst,
                        times, Kmats, Kmat_outputs,
@@ -789,8 +847,9 @@ def decomposition_iter(table_mods, individual_id_lst,
     t = 0
     dif = 1
 
-    # print('introduce lambda to b-hat denominator')
-    # print("Introduce lambda to ksi calculation")
+    #print("Introduce lambda to b-hat denominator")
+    #print("Introduce lambda to ksi calculation")
+    #print("Introduce lambda to ksi and b-hat calculation")
     while t <= maxiter and dif > epsilon:
 
         # variables to save intermediate outputs
@@ -815,13 +874,14 @@ def decomposition_iter(table_mods, individual_id_lst,
                                                   n_components=n_components)
                 b_hats[modality] = b_hat
                 a_hats[modality] = a_hat
+                lambdas[modality] = 1
             if t > 0:
                 # update feature loadings
                 b_temp = b_num[modality]
                 common_denom_flat = list(common_denom[modality].values())
                 common_denom_flat = np.array(common_denom_flat)
                 # introduce lambda to b-hat denominator
-                # common_denom_flat = common_denom_flat * lambdas[modality]
+                common_denom_flat = common_denom_flat * lambdas[modality]
                 b_new = np.dot(b_temp, a_hat) / np.dot(common_denom_flat,
                                                        a_hat ** 2)
                 b_hat = b_new / np.sqrt(np.sum(b_new ** 2))
@@ -829,15 +889,13 @@ def decomposition_iter(table_mods, individual_id_lst,
                 b_hats[modality] = b_hat
 
             # calculate state loadings
-            # if t == 0:
-            Ly = [a_hat[i] * b_hat.dot(m) for i, m in
-                  enumerate(table_mod.values())]
+            # Ly = [a_hat[i] * b_hat.dot(m) for i, m in
+            #       enumerate(table_mod.values())]
             # introduce lambdas to ksi-hat calculation
-            # if t > 0:
-            #     Ly = [lambdas[modality] * a_hat[i] * b_hat.dot(m) for i, m in
-            #           enumerate(table_mod.values())]
+            Ly = [lambdas[modality] * a_hat[i] * b_hat.dot(m) for i, m in
+                  enumerate(table_mod.values())]
             phi_hat = freg_rkhs(Ly, a_hat, ind_vec, Kmat, Kmat_output,
-                                smooth=smooth)
+                                lambda_=lambdas[modality], smooth=smooth)
             phi_hat = (phi_hat / np.sqrt(np.sum(phi_hat ** 2)))
             phi_hats[modality] = phi_hat
             # calculate lambda
