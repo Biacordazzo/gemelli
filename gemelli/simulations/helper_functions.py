@@ -471,19 +471,25 @@ def plot_loadings(loadings, mf, group_colors,
                 #label=['PC1', 'PC2', 'PC3'])
     axn[0].set_title('Temporal Loadings', fontsize=14)
     axn[0].legend(['PC1', 'PC2', 'PC3'])
+    axn[0].set_xlabel('Timepoint')
+    axn[0].set_ylabel('Loadings')
+    #plot subject loadings
     axn[1].scatter(ind_loadings[mod_name][comp1],
                    ind_loadings[mod_name][comp2],
                    c=mf['group'].map(group_colors))
     axn[1].set_title('Subject Loadings', fontsize=14)
+    axn[1].set_xlabel(comp1.replace('_', ' '))
+    axn[1].set_ylabel(comp2.replace('_', ' '))
+    #plot feature loadings
     axn[2].scatter(feat_loadings[mod_name][comp1],
                    feat_loadings[mod_name][comp2],
                    edgecolors=feat_loadings[mod_name]['group'].map(group_colors),
                    facecolors='none', alpha=0.5)
     axn[2].set_title('Feature Loadings', fontsize=14)
+    axn[2].set_xlabel(comp1.replace('_', ' '))
+    axn[2].set_ylabel(comp2.replace('_', ' '))
     plt.suptitle('{} ({})'.format(title, mod_name), 
                  fontsize=16, y=1.02)
-    plt.setp(axn, xlabel=comp1.replace('_', ' '), 
-                  ylabel=comp2.replace('_', ' '))
     plt.show()
 
 def plot_loadings_v2(loadings, mf, group_colors, 
