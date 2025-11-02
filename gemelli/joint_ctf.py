@@ -423,7 +423,8 @@ def summation_check(mod_keys,
     '''
 
     # initialize variables
-    original_a_hat = copy.deepcopy(individual_loadings)
+    #original_a_hat = copy.deepcopy(individual_loadings)
+    a_hat = copy.deepcopy(individual_loadings)
     individual_loadings = {}
     # determine sorting based on proportion of var explained
     new_order = np.argsort(-prop_explained.values.flatten())
@@ -432,22 +433,22 @@ def summation_check(mod_keys,
     for modality in mod_keys:
         # revise the signs of eigenvalues
         lambda_ = np.array(lambda_coeff.loc[modality])
-        lambda_ = np.where(lambda_ < 0, -lambda_, lambda_)
-        a_hat = pd.DataFrame(np.where(lambda_[:, np.newaxis].T < 0,
-                                      -original_a_hat,
-                                      original_a_hat),
-                             original_a_hat.index,
-                             original_a_hat.columns)
+        # lambda_ = np.where(lambda_ < 0, -lambda_, lambda_)
+        # a_hat = pd.DataFrame(np.where(lambda_[:, np.newaxis].T < 0,
+        #                               -original_a_hat,
+        #                               original_a_hat),
+        #                      original_a_hat.index,
+        #                      original_a_hat.columns)
         # get key modality-specific variables
         b_hat = feature_loadings[modality]
         phi_hat = state_loadings[modality]
         # revise the signs of feature loadings
-        sgn_feature_loadings = np.sign(b_hat.sum(axis=0))
-        b_hat *= sgn_feature_loadings
-        a_hat = a_hat*sgn_feature_loadings
+        # sgn_feature_loadings = np.sign(b_hat.sum(axis=0))
+        # b_hat *= sgn_feature_loadings
+        # a_hat = a_hat*sgn_feature_loadings
         # revise the signs of state loadings
-        sgn_state_loadings = np.sign(phi_hat.sum(axis=0))
-        phi_hat *= sgn_state_loadings
+        # sgn_state_loadings = np.sign(phi_hat.sum(axis=0))
+        # phi_hat *= sgn_state_loadings
         # get original col names
         col_names = phi_hat.columns
         # reorder loadings
@@ -469,124 +470,6 @@ def summation_check(mod_keys,
 
     return (feature_loadings, individual_loadings,
             state_loadings, lambda_coeff, prop_explained)
-
-
-# def summation_check(mod_keys,
-#                     feature_loadings,
-#                     individual_loadings,
-#                     state_loadings,
-#                     lambda_coeff,
-#                     prop_explained):
-#     '''
-#     Check that the summation of the loadings is nonnegative
-#     and revise the signs if necessary
-
-#     Parameters
-#     ----------
-#     mod_keys: list, required
-#         List of modality keys
-
-#     feature_loadings: dictionary, required
-#         Feature loadings
-#         keys = modality
-#         values = dataframe of loadings for each component
-
-#     individual_loadings: dataframe, required
-#         Individual loadings
-
-#     state_loadings: dictionary, required
-#         Temporal loadings
-
-#     lambda_coeff: dataframe, required
-#         Singular values
-#         rows = modality
-#         columns = component
-
-#     prop_explained: dataframe, required
-#         Proportion of variance explained by each
-#         component
-
-#     Returns
-#     ----------
-#     Updated loadings and singular values
-#     '''
-
-#     # initialize variables
-#     original_a_hat = copy.deepcopy(individual_loadings)
-#     individual_loadings = {}
-#     # determine sorting based on proportion of var explained
-#     new_order = np.argsort(-prop_explained.values.flatten())
-#     prop_explained = prop_explained.iloc[new_order]
-
-#     for modality in mod_keys:
-#         # revise the signs of eigenvalues
-#         lambda_ = np.array(lambda_coeff.loc[modality])
-#         # check if one of the components is negative
-#         lambda_sign = np.sign(lambda_)
-#         if np.sum(lambda_sign) < 0:
-#             print('Warning: At least one negative singular value \
-#                   encountered in {}.'.format(modality))
-#         lambda_ = np.where(lambda_ < 0, -lambda_, lambda_)
-#         a_hat = pd.DataFrame(np.where(lambda_[:, np.newaxis].T < 0,
-#                                       -original_a_hat,
-#                                       original_a_hat),
-#                              original_a_hat.index,
-#                              original_a_hat.columns)
-    #     # get modality specific loadings
-    #     b_hat = feature_loadings[modality]
-    #     phi_hat = state_loadings[modality]
-    #     col_names = state_loadings[modality].columns
-    #     # revise the signs of state loadings
-    #     sgn_state_loadings = np.sign(phi_hat.sum(axis=0))
-    #     print("{} ksi-hat:".format(modality), sgn_state_loadings.values)
-    #     phi_hat *= sgn_state_loadings
-    #     # reorder loadings
-    #     feature_loadings[modality] = b_hat.iloc[:, new_order]
-    #     individual_loadings[modality] = a_hat.iloc[:, new_order]
-    #     state_loadings[modality] = phi_hat.iloc[:, new_order]
-    #     lambda_coeff.loc[modality] = lambda_[new_order]
-    #     # make sure col names are updated too
-    #     feature_loadings[modality].columns = col_names
-    #     individual_loadings[modality].columns = col_names
-    #     state_loadings[modality].columns = col_names
-    #     lambda_coeff.columns = col_names
-        
-    # # further sign correction for feature and subject loadings
-    # # use directionality of first modality for consistency
-    # b_hat = feature_loadings[list(mod_keys)[0]]
-    # a_hat = individual_loadings[list(mod_keys)[0]]
-    # # check summation sign
-    # sgn_feature_loadings = np.sign(b_hat.sum(axis=0))
-    # vec1 = sgn_feature_loadings.values
-    # print("mod1 b-hat:", vec1)
-    # print("original a-hat:", np.sign(a_hat.sum(axis=0)).values)
-    # b_hat *= sgn_feature_loadings
-    # a_hat = a_hat*sgn_feature_loadings
-    # print("a-hat:", np.sign(a_hat.sum(axis=0)).values)
-    # # save
-    # feature_loadings[list(mod_keys)[0]] = b_hat
-    # individual_loadings[list(mod_keys)[0]] = a_hat
-    
-    # # enfore same sign in the other modalities
-    # if len(list(mod_keys)) > 1:
-    #     for modality in list(mod_keys)[1:]:
-    #         b_hat = feature_loadings[modality]
-    #         new_feature_sgn = np.sign(b_hat.sum(axis=0))
-    #         vec2 = new_feature_sgn.values
-    #         # where the signs are different, flip the sign
-    #         print("{} b-hat:".format(modality), vec2)
-    #         flip_sign = np.where(vec1 * vec2 < 0)[0]
-    #         for i in flip_sign:
-    #             b_hat.iloc[:, i] = -b_hat.iloc[:, i]
-    #         print("Corrected b-hat:", np.sign(b_hat.sum(axis=0)).values)
-    #         feature_loadings[modality] = b_hat
-    #         individual_loadings[modality] = a_hat
-
-    # # rename columns in case order of components changed
-    # prop_explained.index = col_names
-
-    # return (feature_loadings, individual_loadings,
-    #         state_loadings, lambda_coeff, prop_explained)
 
 
 def feature_covariance(table_mods, b_hats, lambdas):
@@ -819,9 +702,11 @@ def initialize_tabular(individual_id_tables,
     u, e, v = svds(data_unfold, k=n_components, which='LM')
     u, e, v = svd_sort(u, np.diag(e), v)
     b_hat = u[:, 0]
-    # initialize subject loadings
+    # ensure feature loadings are positive
     consistent_sign = np.sign(np.sum(b_hat))
-    a_hat = (np.ones(n_individuals) / np.sqrt(n_individuals)) * consistent_sign
+    b_hat *= consistent_sign
+    # initialize subject loadings
+    a_hat = (np.ones(n_individuals) / np.sqrt(n_individuals))# * consistent_sign
 
     return b_hat, a_hat
 
@@ -972,6 +857,7 @@ def decomposition_iter(table_mods, individual_id_lst,
 
     while t <= maxiter and dif > epsilon:
 
+        print("Iteration {}".format(t))
         # variables to save intermediate outputs
         a_num = {}
         a_denom = {}
@@ -995,6 +881,7 @@ def decomposition_iter(table_mods, individual_id_lst,
                 b_hats[modality] = b_hat
                 a_hats[modality] = a_hat
                 lambdas[modality] = 1
+                # at this point, vectors are all positive
             if t > 0:
                 # update feature loadings
                 b_temp = b_num[modality]
@@ -1005,19 +892,45 @@ def decomposition_iter(table_mods, individual_id_lst,
                 b_new = np.dot(b_temp, a_hat) / np.dot(common_denom_flat,
                                                        a_hat ** 2)
                 b_hat = b_new / np.sqrt(np.sum(b_new ** 2))
+                # ensure sign consistency
+                consistent_sign = np.sign(np.sum(b_hat))
+                b_hat *= consistent_sign
                 b_hat_difs[modality] = np.sum((b_hats[modality] - b_hat) ** 2)
                 b_hats[modality] = b_hat
 
             # introduce lambdas to ksi-hat calculation
-            Ly = [lambdas[modality] * a_hat[i] * b_hat.dot(m) for i, m in
+            #Ly = [lambdas[modality] * a_hat[i] * b_hat.dot(m) for i, m in
+            #      enumerate(table_mod.values())]
+            Ly = [a_hat[i] * b_hat.dot(m) for i, m in
                   enumerate(table_mod.values())]
             phi_hat = freg_rkhs(Ly, a_hat, ind_vec, Kmat, Kmat_output,
-                                lambda_=lambdas[modality], smooth=smooth)
+                                lambda_=1, smooth=smooth)
             phi_hat = (phi_hat / np.sqrt(np.sum(phi_hat ** 2)))
+
+            #print the signs of the loadings
+            print("a_hat sign: {}, b_hat sign: {}, "
+                  "phi_hat sign: {}".format(np.sign(a_hat.sum(axis=0)),
+                                            np.sign(b_hats[modality].sum(axis=0)),
+                                            np.sign(phi_hat.sum(axis=0))))
+        
+            # sign correction
+            sgn_state_loadings = np.sign(phi_hat.sum(axis=0))
+            phi_hat *= sgn_state_loadings
             phi_hats[modality] = phi_hat
             # calculate lambda
             lambda_mod = update_lambda(table_mod, ti, a_hat, phi_hat, b_hat)
+            # sign correction
+            #if np.any(lambda_mod < 0):
+            #    print("Negative singular values detected ({}). "
+            #          "Revising signs.".format(round(lambda_mod)))
+            # correction based on sign of lambdas
+            print("lambda sign: {}".format(np.sign(lambda_mod)))
+            sgn_lambda = np.sign(lambda_mod)
+            #b_hat *= sgn_lambda
+            #phi_hat *= sgn_lambda
+            lambda_mod = np.where(lambda_mod < 0, -lambda_mod, lambda_mod)
             lambdas[modality] = lambda_mod
+            
             # begin updating subject and feature loadings
             (a_mod_num,
              a_mod_den,
@@ -1039,18 +952,24 @@ def decomposition_iter(table_mods, individual_id_lst,
         a_scaling = np.sqrt(np.sum(a_tilde ** 2))
         a_new = np.array(
             [a_tilde[i] / a_scaling for i in range(len(a_tilde))])
+        #ensure sign consistency
+        consistent_sign = np.sign(np.sum(a_new))
+        a_new *= consistent_sign
         a_hat_dif = np.sum((a_hat - a_new) ** 2)
         a_hat = a_new
-        
-        # directionality check 
-        # sgn_feature_loadings = np.sign(b_hat.sum(axis=0))
-        # b_hat *= sgn_feature_loadings
-        # a_hat = a_hat*sgn_feature_loadings
 
+        #print the signs of the loadings
+        print("a_hat sign: {}, b_hat sign: {}, phi_hat sign: {}, "
+              "lambda sign: {}".format(np.sign(a_hat.sum(axis=0)),
+                                       np.sign(b_hats[modality].sum(axis=0)),
+                                       np.sign(phi_hats[modality].sum(axis=0)),
+                                       np.sign(lambdas[modality])))
+        
         # check for convergence (maybe take mean of b_hat_difs?)
         dif = max([a_hat_dif]+list(b_hat_difs.values()))
         t += 1
     print("Reached convergence in {} iterations".format(t))
+    print()
 
     return a_hat, b_hats, phi_hats, lambdas
 
@@ -1445,16 +1364,16 @@ def joint_ctf_helper(individual_id_tables,
                                  lambda_coeff, n_components)
     # revise the signs to make sure summation is nonnegative
     # and order based on coefficient of determination
-    # (feature_loadings,
-    #  individual_loadings,
-    #  state_loadings,
-    #  lambda_coeff,
-    #  var_explained) = summation_check(table_mods.keys(),
-    #                                   feature_loadings,
-    #                                   individual_loadings,
-    #                                   state_loadings,
-    #                                   lambda_coeff,
-    #                                   var_explained)
+    (feature_loadings,
+     individual_loadings,
+     state_loadings,
+     lambda_coeff,
+     var_explained) = summation_check(table_mods.keys(),
+                                      feature_loadings,
+                                      individual_loadings,
+                                      state_loadings,
+                                      lambda_coeff,
+                                      var_explained)
     # return original time points
     time_return = np.linspace(norm_interval[0],
                               norm_interval[1],
